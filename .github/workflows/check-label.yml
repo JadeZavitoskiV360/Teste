@@ -1,0 +1,30 @@
+name: Check for Label and Comment
+
+on:
+  issues:
+    types: [opened, edited, labeled, unlabeled]
+
+jobs:
+  check-label:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check for 'ESFORÇO' Label
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const labelToCheck = 'ESFORÇO';
+          const issue = context.payload.issue;
+
+          // Check if the issue has the required label
+          const labels = issue.labels.map(label => label.name);
+          
+          if (!labels.includes(labelToCheck)) {
+            // Comment on the issue if the label is missing
+            await github.rest.issues.createComment({
+              issue_number: issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Olá! Você não colocou sua label de "ESFORÇO". Poderia inseri-la?'
+            });
+          }
